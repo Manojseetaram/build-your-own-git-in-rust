@@ -5,7 +5,7 @@ use std::path::PathBuf;
 pub(crate) mod commands;
 pub(crate) mod objects;
 
-/// Simple program to gree1t a person
+/// Simple program to greet a person
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct Args {
@@ -13,38 +13,44 @@ struct Args {
     command: Command,
 }
 
-/// Doc comment
+/// Available git-like commands
 #[derive(Debug, Subcommand)]
 enum Command {
-    /// Doc comment
+    /// Initialize a new git directory
     Init,
+
+    /// Print the contents of an object
     CatFile {
         #[clap(short = 'p')]
         pretty_print: bool,
 
         object_hash: String,
     },
+
+    /// Compute object ID and optionally write object to the database
     HashObject {
         #[clap(short = 'w')]
         write: bool,
 
         file: PathBuf,
     },
+
+    /// List the contents of a tree object
     LsTree {
         #[clap(long)]
         name_only: bool,
 
         tree_hash: String,
     },
+
+    /// Write a tree object from the current directory
+    WriteTree,
 }
 
 fn main() -> anyhow::Result<()> {
     let args = Args::parse();
 
-    // You can use print statements as follows for debugging, they'll be visible when running tests.
     eprintln!("Logs from your program will appear here!");
-
-    // Uncomment this block to pass the first stage
     match args.command {
         Command::Init => {
             fs::create_dir_all(".git/objects")?;
@@ -69,6 +75,9 @@ fn main() -> anyhow::Result<()> {
             tree_hash,
         } => {
             commands::ls_tree::invoke(name_only, &tree_hash)?;
+        }
+        Command::WriteTree => {
+            commands::write_tree::invoke()?;
         }
     }
 
