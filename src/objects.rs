@@ -29,7 +29,7 @@ impl fmt::Display for Kind {
 
 pub(crate) struct Object<R> {
     pub(crate) kind: Kind,
-    pub(crate) expected_size: u64,
+    pub(crate) _expected_sizes: u64,
     pub(crate) reader: R,
 }
 
@@ -62,7 +62,7 @@ impl Object<()> {
         let z = z.take(size);
         Ok(Object {
             kind,
-            expected_size: size,
+            _expected_sizes: size,
             reader: z,
         })
     }
@@ -109,7 +109,7 @@ impl Object<BufReader<fs::File>> {
 
         let obj = Object {
             kind: Kind::Blob,
-            expected_size: fs::metadata(path)?.len(),
+            _expected_sizes: fs::metadata(path)?.len(),
             reader,
         };
 

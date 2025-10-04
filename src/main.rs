@@ -5,7 +5,7 @@ use std::path::PathBuf;
 pub(crate) mod commands;
 pub(crate) mod objects;
 
-/// Simple program to greet a person
+/// Git-like CLI program
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct Args {
@@ -13,44 +13,44 @@ struct Args {
     command: Command,
 }
 
-/// Available git-like commands
+/// All supported commands
 #[derive(Debug, Subcommand)]
 enum Command {
-    /// Initialize a new git directory
     Init,
-
-    /// Print the contents of an object
     CatFile {
         #[clap(short = 'p')]
         pretty_print: bool,
-
         object_hash: String,
     },
-
-    /// Compute object ID and optionally write object to the database
     HashObject {
         #[clap(short = 'w')]
         write: bool,
-
         file: PathBuf,
     },
-
-    /// List the contents of a tree object
     LsTree {
         #[clap(long)]
         name_only: bool,
-
         tree_hash: String,
     },
-
-    /// Write a tree object from the current directory
     WriteTree,
+    CommitTree {
+        #[clap(short = 'm')]
+        message: String,
+        #[clap(short = 'p')]
+        parent_hash: Option<String>,
+        tree_hash: String,
+    },
+    Clone {
+        url: String,
+        dir: String,
+    },
 }
 
 fn main() -> anyhow::Result<()> {
     let args = Args::parse();
 
     eprintln!("Logs from your program will appear here!");
+
     match args.command {
         Command::Init => {
             fs::create_dir_all(".git/objects")?;
@@ -78,6 +78,16 @@ fn main() -> anyhow::Result<()> {
         }
         Command::WriteTree => {
             commands::write_tree::invoke()?;
+        }
+        Command::CommitTree {
+            message,
+            tree_hash,
+            parent_hash,
+        } => commands::commit_tree::invoke(message, tree_hash, parent_hash)?,
+        Command::Clone { url, dir } => {
+            let repo = git2::Repository::clone(&url, &dir)
+                .map_err(|e| anyhow::anyhow!("Failed to clone {}: {}", url, e))?;
+            println!("Cloned {} to {}", url, repo.path().display());
         }
     }
 

@@ -95,7 +95,7 @@ fn write_tree_for(path: &Path) -> anyhow::Result<Option<[u8; 20]>> {
     } else {
         let hash = Object {
             kind: Kind::Tree,
-            expected_size: tree_object.len() as u64,
+            _expected_sizes: tree_object.len() as u64,
             reader: Cursor::new(tree_object),
         }
         .write_to_objects()
