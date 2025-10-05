@@ -33,9 +33,6 @@ pub(crate) struct Object<R> {
     pub(crate) reader: R,
 }
 
-// =======================
-// Reading an object
-// =======================
 impl Object<()> {
     pub(crate) fn read(hash: &str) -> anyhow::Result<Object<impl BufRead>> {
         let f = fs::File::open(format!(".git/objects/{}/{}", &hash[..2], &hash[2..]))
@@ -68,9 +65,6 @@ impl Object<()> {
     }
 }
 
-// =======================
-// Writing an object
-// =======================
 impl<R: io::Read> Object<R> {
     /// Write the object to .git/objects and return raw SHA-1 bytes
     pub(crate) fn write_to_objects(mut self) -> anyhow::Result<[u8; 20]> {
@@ -99,9 +93,6 @@ impl<R: io::Read> Object<R> {
     }
 }
 
-// =======================
-// Convenience: create blob from file
-// =======================
 impl Object<BufReader<fs::File>> {
     pub(crate) fn blob_from_file(path: &Path) -> anyhow::Result<[u8; 20]> {
         let file = fs::File::open(path)?;

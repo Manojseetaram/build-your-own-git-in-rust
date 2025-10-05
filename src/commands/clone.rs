@@ -6,3 +6,4 @@ pub fn invoke(url: &str, dir: &str) -> Result<()> {
     println!("Cloned {} to {}", url, dir);
     Ok(())
 }
+

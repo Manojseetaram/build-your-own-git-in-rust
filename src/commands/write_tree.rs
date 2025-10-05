@@ -6,8 +6,6 @@ use std::io::Cursor;
 use std::os::unix::fs::PermissionsExt;
 use std::path::Path;
 
-/// Recursively construct a tree object for the given directory.
-/// Returns `None` for empty directories.
 fn write_tree_for(path: &Path) -> anyhow::Result<Option<[u8; 20]>> {
     let mut dir =
         fs::read_dir(path).with_context(|| format!("open directory {}", path.display()))?;
@@ -20,7 +18,6 @@ fn write_tree_for(path: &Path) -> anyhow::Result<Option<[u8; 20]>> {
         entries.push((entry, name, meta));
     }
 
-    // Sort according to Git tree rules
     entries.sort_unstable_by(|a, b| {
         let afn = a.1.as_encoded_bytes();
         let bfn = b.1.as_encoded_bytes();
@@ -72,7 +69,6 @@ fn write_tree_for(path: &Path) -> anyhow::Result<Option<[u8; 20]>> {
 
         let path = entry.path();
 
-        // Recursively write directories or blobs
         let hash: [u8; 20] = if meta.is_dir() {
             match write_tree_for(&path)? {
                 Some(h) => h,
@@ -105,7 +101,6 @@ fn write_tree_for(path: &Path) -> anyhow::Result<Option<[u8; 20]>> {
     }
 }
 
-/// Entry point for writing the root tree object
 pub(crate) fn invoke() -> anyhow::Result<()> {
     let Some(hash) = write_tree_for(Path::new(".")).context("construct root tree object")? else {
         anyhow::bail!("asked to make tree object for empty tree");

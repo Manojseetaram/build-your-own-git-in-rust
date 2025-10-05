@@ -5,7 +5,6 @@ use std::path::PathBuf;
 pub(crate) mod commands;
 pub(crate) mod objects;
 
-/// Git-like CLI program
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct Args {
@@ -13,7 +12,6 @@ struct Args {
     command: Command,
 }
 
-/// All supported commands
 #[derive(Debug, Subcommand)]
 enum Command {
     Init,
